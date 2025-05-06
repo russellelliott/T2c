@@ -100,6 +100,13 @@ Each problem should include:
 The following rules must be followed:
 1. Each block must contain only code. No block should contain comments.
 2. None of the blocks should have any indentation. All code should be left-aligned.
+3. Ensure the problem statement provides clear and specific instructions to guide the user on what to implement or solve.
+4. A code block must not consist of a single bracket (e.g., '{{', '}}', '[', ']', '(', ')'). For example, avoid blocks like:
+   {{
+       "id": "i",
+       "code": "}}"
+   }}
+5. Avoid using Unicode character codes as text. Instead, include the literal character directly in the code.
 
 The output should be a JSON object with the following structure:
 
