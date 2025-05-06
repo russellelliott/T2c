@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
@@ -52,73 +52,89 @@ def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 
-@app.get("/generate-problems")
-def generate_problems(specification: str):
+@app.get("/generate-topics")
+def generate_topics(activity_name: str):
     try:
-        # Decode the base64-encoded specification
-        decoded_spec = base64.b64decode(specification).decode("utf-8")
+        # Construct the system prompt for generating topic ideas
+        system_prompt = f"""You are a creative assistant. Generate a list of topic ideas for Parsons problems.
+The topics should be relevant to the activity: "{activity_name}".
+Provide 5-10 diverse and interesting topics that could be discussed in this activity.
+The output must be a valid JSON array of strings, like this:
+["Topic 1", "Topic 2", "Topic 3", "Topic 4", "Topic 5"]"""
+
+        # Call OpenAI API
+        response = client.chat.completions.create(
+            model=openai_api_model_name,
+            messages=[{"role": "system", "content": system_prompt}],
+            response_format={"type": "json_object"}
+        )
+
+        # Extract the AI-generated content
+        ai_response = response.choices[0].message.content
+        topics = json.loads(ai_response)
+
+        return JSONResponse(content={"topics": topics})
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error generating topics: {str(e)}")
+
+
+@app.post("/generate-problems")
+async def generate_problems(request: Request):
+    try:
+        # Parse the JSON payload
+        payload = await request.json()
+        topics = payload.get("topics", [])
+        num_problems = payload.get("num_problems", 1)
 
         # Construct the system prompt
-        system_prompt = """You are a Parsons problem generator.
+        system_prompt = f"""You are a Parsons problem generator.
 
-Your task is to generate a set of problems based on the selected concepts and programming language.
-Each problem should include a problem statement, a solution, and distractor blocks.
-It is okay if the distractor blocks are not complete or contain duplicates of the solution blocks. The problem display interface will handle that. In particular, the distrator set will be formed by the union of lines in the distractor blocks differenced by the set of solution blocks.
-Use "_thoughts" to sketch out the problem before writing the detailed specification for it.
+Your task is to generate a set of problems based on the selected topics.
+Each problem should include:
+- A problem statement.
+- A list of code blocks, including distractor blocks.
+- The correct order of the blocks.
+
+The following rules must be followed:
+1. Each block must contain only code. No block should contain comments.
+2. None of the blocks should have any indentation. All code should be left-aligned.
 
 The output should be a JSON object with the following structure:
 
-{
-    "language": "JavaScript",
+{{
+    "activityName": "Custom Parsons Problem",
     "problems": [
-        {
-            "_thoughts": [
-                "I'll require the user to build a function that doesn't get called.",
-                "I'll test their ability to give it a good name.",
-                "And I'll have them pick a good body for it.",
-                "Distractors will include other names and bodies as well as loose body fragments with bad indentation."
+        {{
+            "prompt": "Divide the cost of a meal and tip among a given number of people.",
+            "blocks": [
+                {{ "id": "a", "code": "let tipAmount = mealCost * (tipPercentage /100);" }},
+                {{ "id": "b", "code": "let totalCost = mealCost + tipAmount;" }},
+                {{ "id": "c", "code": "let costPerPerson = totalCost / numPeople;" }},
+                {{ "id": "d", "code": "let costPerPerson = mealCost / numPeople;" }},
+                {{ "id": "e", "code": "let totalCost = mealCost - tipAmount;" }},
+                {{ "id": "f", "code": "let tipAmount = mealCost + (tipPercentage /100);" }}
             ],
-            "problem": "Write a function that adds two numbers.",
-            "solution_blocks": [
-                "function add(a, b) {",
-                "    return a + b;",
-                "}"
-            ],
-            "distractor_blocks": [
-                "function subtract(a, b) {",
-                "    return a - b;",
-                "}",
-                "function multiply(a, b) {",
-                "    return a * b;",
-                "}",
-                "a + b",
-                "return a;"
-            ],
-            "difficulty": "Easy",
-            "concepts": ["Variable Assignment", "Basic Arithmetic"]
-        },
+            "correctOrder": ["a", "b", "c"]
+        }},
         ...
     ]
-}
+}}
 
-The problems should be relevant to the selected concepts without including any of the concepts that were not selected.
-The collection should have exactly as many problems as specified in the JSON object that will follow.
-"""
+The problems should be based on the following topics: {', '.join(topics)}.
+The collection should have exactly {num_problems} problems."""
 
         # Call OpenAI API
         response = client.chat.completions.create(
             model=openai_api_model_name,
             messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": decoded_spec}
+                {"role": "system", "content": system_prompt}
             ],
             response_format={"type": "json_object"}
         )
 
         # Extract the AI-generated content
         ai_response = response.choices[0].message.content
-
-        # Parse the AI response into JSON
         problems = json.loads(ai_response)
 
         return JSONResponse(content=problems)
