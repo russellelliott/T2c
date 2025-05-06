@@ -79,13 +79,14 @@ The output must be a valid JSON array of strings, like this:
         raise HTTPException(status_code=500, detail=f"Error generating topics: {str(e)}")
 
 
-@app.post("/generate-problems")
-async def generate_problems(request: Request):
+@app.get("/generate-problems")
+def generate_problems(specification: str):
     try:
-        # Parse the JSON payload
-        payload = await request.json()
-        topics = payload.get("topics", [])
-        num_problems = payload.get("num_problems", 1)
+        # Decode the base64-encoded specification
+        decoded_spec = base64.b64decode(specification).decode("utf-8")
+        spec_data = json.loads(decoded_spec)
+        topics = spec_data.get("topics", [])
+        num_problems = spec_data.get("num_problems", 1)
 
         # Construct the system prompt
         system_prompt = f"""You are a Parsons problem generator.
@@ -128,7 +129,8 @@ The collection should have exactly {num_problems} problems."""
         response = client.chat.completions.create(
             model=openai_api_model_name,
             messages=[
-                {"role": "system", "content": system_prompt}
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": decoded_spec}
             ],
             response_format={"type": "json_object"}
         )

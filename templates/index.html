@@ -140,29 +140,23 @@
                 num_problems: parseInt(numProblems, 10),
             };
 
-            generateProblemsButton.disabled = true;
-            fetch(`/generate-problems`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(specification),
-            })
+            // Encode the specification as a base64 string
+            const encodedSpec = btoa(JSON.stringify(specification));
+
+            // Construct the URL for the GET request
+            const url = `/generate-problems?specification=${encodedSpec}`;
+
+            // Update the hyperlink
+            problemsLink.href = url;
+            problemsLink.style.display = 'inline';
+
+            // Fetch the problems and display the preview
+            fetch(url)
                 .then(response => response.json())
                 .then(data => {
-                    // Display the problems in the output
                     problemsOutput.textContent = JSON.stringify(data, null, 2);
-
-                    // Generate a link to view the problems
-                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-                    const url = URL.createObjectURL(blob);
-                    problemsLink.href = url;
-                    problemsLink.style.display = 'inline';
                 })
-                .catch(error => console.error('Error generating problems:', error))
-                .finally(() => {
-                    generateProblemsButton.disabled = false;
-                });
+                .catch(error => console.error('Error fetching problems:', error));
         });
     </script>
 </body>
