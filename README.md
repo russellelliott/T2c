@@ -39,7 +39,7 @@ templates/           # HTML templates
    ```env
    OPENAI_API_KEY=<your-openai-api-key>
    OPENAI_API_BASE=https://api.openai.com/v1
-   OPENAI_API_MODEL_NAME=gpt-4
+   OPENAI_API_MODEL_NAME=gpt-4.1
    ```
 
 ## Running the Application
