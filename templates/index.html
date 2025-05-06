@@ -20,7 +20,7 @@
     <h1>Parsons Problem Generator</h1>
     <form id="problem-form">
         <label for="num_problems">Specify Number of Problems:</label>
-        <input type="range" id="num_problems" name="num_problems" min="1" max="10" value="3" oninput="numProblemsOutput.value = this.value; updateUI();">
+        <input type="range" id="num_problems" name="num_problems" min="1" max="10" value="3" oninput="numProblemsOutput.value = this.value;">
         <output id="numProblemsOutput">3</output><br><br>
     </form>
 
@@ -96,6 +96,7 @@
                 return;
             }
 
+            generateTopicsButton.disabled = true;
             fetch(`/generate-topics?activity_name=${encodeURIComponent(activityName)}`)
                 .then(response => response.json())
                 .then(data => {
@@ -115,7 +116,10 @@
                         console.error('Invalid response format:', data);
                     }
                 })
-                .catch(error => console.error('Error generating topics:', error));
+                .catch(error => console.error('Error generating topics:', error))
+                .finally(() => {
+                    generateTopicsButton.disabled = false;
+                });
         });
 
         // Generate problems based on selected topics
@@ -136,6 +140,7 @@
                 num_problems: parseInt(numProblems, 10),
             };
 
+            generateProblemsButton.disabled = true;
             fetch(`/generate-problems`, {
                 method: 'POST',
                 headers: {
@@ -154,7 +159,10 @@
                     problemsLink.href = url;
                     problemsLink.style.display = 'inline';
                 })
-                .catch(error => console.error('Error generating problems:', error));
+                .catch(error => console.error('Error generating problems:', error))
+                .finally(() => {
+                    generateProblemsButton.disabled = false;
+                });
         });
     </script>
 </body>
