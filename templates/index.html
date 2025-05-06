@@ -31,8 +31,12 @@
     <a id="generated-url" href="#" target="_blank">Click to test the generated URL</a>
 
     <h2>Generated Problems</h2>
-    <button type="button" id="preview-result">Preview Result</button>
-    <pre id="output"></pre>
+    <button id="generate-problems">Preview Result</button>
+    <a id="problems-link" href="#" target="_blank" style="display: inline;"></a>
+    <pre id="problems-output"></pre>
+
+    <h2>Live Specification</h2>
+    <pre id="live-specification"></pre>
 
     <h2>Manage Topics</h2>
     <div id="topics-container">
@@ -47,11 +51,6 @@
         <button id="generate-topics">Generate Topics</button>
     </div>
 
-    <h2>Generate Problems</h2>
-    <button id="generate-problems">Generate Problems</button>
-    <a id="problems-link" href="#" target="_blank" style="display: inline;"></a>
-    <pre id="problems-output"></pre>
-
     <script>
         const output = document.getElementById('output');
         const topicsContainer = document.getElementById('topics-container');
@@ -63,6 +62,7 @@
         const problemsLink = document.getElementById('problems-link');
         const problemsOutput = document.getElementById('problems-output');
         const numProblemsInput = document.getElementById('num_problems');
+        const liveSpecification = document.getElementById('live-specification');
 
         function updateProblemsLink() {
             const selectedTopics = Array.from(topicsList.querySelectorAll('input[type="checkbox"]:checked')).map(
@@ -85,12 +85,15 @@
             // Update the hyperlink
             problemsLink.href = url;
             problemsLink.textContent = url; // Set the hyperlink text to the URL
+
+            // Display the live specification
+            liveSpecification.textContent = JSON.stringify(specification, null, 2);
         }
 
-        // Update the link whenever the number of problems changes
+        // Update the link and specification whenever the number of problems changes
         numProblemsInput.addEventListener('input', updateProblemsLink);
 
-        // Update the link whenever topics are selected or deselected
+        // Update the link and specification whenever topics are selected or deselected
         topicsList.addEventListener('change', updateProblemsLink);
 
         // Add a new topic
@@ -112,7 +115,7 @@
                     topicsList.appendChild(li);
                     newTopicInput.remove();
                     saveButton.remove();
-                    updateProblemsLink(); // Update the link when a new topic is added
+                    updateProblemsLink(); // Update the link and specification when a new topic is added
                 }
             });
             topicsContainer.appendChild(newTopicInput);
@@ -143,7 +146,7 @@
                                 topicsList.appendChild(li);
                             }
                         });
-                        updateProblemsLink(); // Update the link when new topics are fetched
+                        updateProblemsLink(); // Update the link and specification when new topics are fetched
                     } else {
                         console.error('Invalid response format:', data);
                     }
@@ -156,7 +159,7 @@
 
         // Generate problems based on selected topics
         generateProblemsButton.addEventListener('click', () => {
-            updateProblemsLink(); // Ensure the link is updated before fetching problems
+            updateProblemsLink(); // Ensure the link and specification are updated before fetching problems
 
             // Fetch the problems and display the preview
             fetch(problemsLink.href)
@@ -167,7 +170,7 @@
                 .catch(error => console.error('Error fetching problems:', error));
         });
 
-        // Initialize the link on page load
+        // Initialize the link and specification on page load
         updateProblemsLink();
     </script>
 </body>
