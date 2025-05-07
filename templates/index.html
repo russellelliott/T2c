@@ -160,13 +160,20 @@
         generateProblemsButton.addEventListener('click', () => {
             updateProblemsLink(); // Ensure the link and specification are updated before fetching problems
 
+            // Disable the button while fetching problems
+            generateProblemsButton.disabled = true;
+
             // Fetch the problems and display the preview
             fetch(problemsLink.href)
                 .then(response => response.json())
                 .then(data => {
                     problemsOutput.textContent = JSON.stringify(data, null, 2);
                 })
-                .catch(error => console.error('Error fetching problems:', error));
+                .catch(error => console.error('Error fetching problems:', error))
+                .finally(() => {
+                    // Re-enable the button after the response is received
+                    generateProblemsButton.disabled = false;
+                });
         });
 
         // Initialize the link and specification on page load
