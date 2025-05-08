@@ -1,4 +1,5 @@
 # [Live Site](https://rdelliot-parsons-problem-generator.glitch.me)
+This website generates Parsons problems to be used by [Parsons Problem Site](https://rdelliot-parsons-pipeline.glitch.me)
 
 # Parsons Problem Generator API
 
