@@ -6,7 +6,9 @@ This project is a FastAPI-based application for generating Parsons problems, whi
 
 - **Dynamic Front-End**: A user-friendly front-end built with HTML and JavaScript, dynamically updates based on user input.
 - **AI-Generated Problems**: Uses OpenAI's GPT model to generate Parsons problems tailored to the selected programming language, concepts, and difficulty.
-- **GET API Endpoint**: A `/generate-problems` endpoint that accepts query parameters to generate problems.
+- **GET API Endpoints**:
+  - `/generate-problems`: Accepts query parameters to generate Parsons problems.
+  - `/generate-topics`: Accepts an activity name to fetch a list of relevant topics.
 - **Cross-Origin Support**: Configured with CORS middleware to allow requests from any origin.
 
 ## Project Structure
@@ -62,6 +64,29 @@ templates/           # HTML templates
 
 ## API Reference
 
+### `GET /generate-topics`
+
+Fetches a list of topics based on the provided activity name.
+
+#### Query Parameter:
+- `activity_name` (string): The name of the activity for which topics should be generated.
+
+#### Example Request:
+```bash
+curl "http://127.0.0.1:8000/generate-topics?activity_name=Python%20Basics"
+```
+
+#### Example Response:
+```json
+{
+    "topics": {
+        "topics": ["Variables", "Loops", "Functions"]
+    }
+}
+```
+
+---
+
 ### `GET /generate-problems`
 
 Generates Parsons problems based on the provided query parameter.
@@ -70,29 +95,140 @@ Generates Parsons problems based on the provided query parameter.
 - `specification` (string): A base64-encoded JSON string containing the problem specification. The JSON object should have the following structure:
   ```json
   {
-      "language": "Python",
-      "concepts": {
-          "Easy": {
-              "Variable Assignment": true,
-              "Basic Arithmetic": false
-          },
-          "Medium": {
-              "Functions": true
-          },
-          "Hard": {
-              "Recursion": false
-          }
-      },
+      "topics": ["Variables", "Loops", "Functions"],
       "num_problems": 3
   }
   ```
 
 #### Example Request:
 ```bash
-curl "http://127.0.0.1:8000/generate-problems?specification=eyJsYW5ndWFnZSI6ICJQeXRob24iLCAiY29uY2VwdHMiOiB7IkVhc3kiOiB7IlZhcmlhYmxlIEFzc2lnbm1lbnQiOiB0cnVlLCAiQmFzaWMgQXJpdGhtZXRpYyI6IGZhbHNlfSwgIk1lZGl1bSI6IHsiRnVuY3Rpb25zIjogdHJ1ZX0sICJIYXJkIjogeyJSZWN1cnNpb24iOiBmYWxzZX19LCAibnVtX3Byb2JsZW1zIjogM30="
+curl "http://127.0.0.1:8000/generate-problems?specification=eyJ0b3BpY3MiOiBbIlZhcmlhYmxlcyIsICJMb29wcyIsICJGdW5jdGlvbnMiXSwgIm51bV9wcm9ibGVtcyI6IDN9"
 ```
 
-The `specification` parameter is a base64-encoded string of the JSON object. You can use tools like `btoa` in JavaScript or `base64` in Python to encode the JSON object.
+#### Example Response:
+```json
+{
+    "activityName": "Custom Parsons Problem",
+    "problems": [
+        {
+            "prompt": "Calculate the factorial of a number using a loop.",
+            "blocks": [
+                {
+                    "id": "a",
+                    "code": "let result = 1;"
+                },
+                {
+                    "id": "b",
+                    "code": "for (let i = 1; i <= n; i++) {"
+                },
+                {
+                    "id": "c",
+                    "code": "result = result * i;"
+                },
+                {
+                    "id": "d",
+                    "code": "}"
+                },
+                {
+                    "id": "e",
+                    "code": "result = result + i;"
+                },
+                {
+                    "id": "f",
+                    "code": "for (let i = 0; i <= n; i++) {"
+                }
+            ],
+            "correctOrder": [
+                "a",
+                "b",
+                "c",
+                "d"
+            ]
+        },
+        {
+            "prompt": "Write code to find the maximum value in an array named nums.",
+            "blocks": [
+                {
+                    "id": "a",
+                    "code": "let max = nums[0];"
+                },
+                {
+                    "id": "b",
+                    "code": "for (let i = 1; i < nums.length; i++) {"
+                },
+                {
+                    "id": "c",
+                    "code": "if (nums[i] > max) {"
+                },
+                {
+                    "id": "d",
+                    "code": "max = nums[i];"
+                },
+                {
+                    "id": "e",
+                    "code": "}"
+                },
+                {
+                    "id": "f",
+                    "code": "}"
+                },
+                {
+                    "id": "g",
+                    "code": "if (nums[i] < max) {"
+                }
+            ],
+            "correctOrder": [
+                "a",
+                "b",
+                "c",
+                "d",
+                "e",
+                "f"
+            ]
+        },
+        {
+            "prompt": "Check if a string variable str is a palindrome.",
+            "blocks": [
+                {
+                    "id": "a",
+                    "code": "let reversed = '';"
+                },
+                {
+                    "id": "b",
+                    "code": "for (let i = str.length - 1; i >= 0; i--) {"
+                },
+                {
+                    "id": "c",
+                    "code": "reversed += str[i];"
+                },
+                {
+                    "id": "d",
+                    "code": "}"
+                },
+                {
+                    "id": "e",
+                    "code": "let isPalindrome = str === reversed;"
+                },
+                {
+                    "id": "f",
+                    "code": "let isPalindrome = str !== reversed;"
+                },
+                {
+                    "id": "g",
+                    "code": "for (let i = 0; i < str.length; i++) {"
+                }
+            ],
+            "correctOrder": [
+                "a",
+                "b",
+                "c",
+                "d",
+                "e"
+            ]
+        }
+    ]
+}
+```
 
 ## License
 
