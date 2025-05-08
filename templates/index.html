@@ -18,24 +18,6 @@
 </head>
 <body>
     <h1>Parsons Problem Generator</h1>
-    <form id="problem-form">
-        <label for="num_problems">Specify Number of Problems:</label>
-        <input type="range" id="num_problems" name="num_problems" min="1" max="10" value="3" oninput="numProblemsOutput.value = this.value;">
-        <output id="numProblemsOutput">3</output><br><br>
-    </form>
-
-    <h2>Problem Specification</h2>
-    <pre id="problem-specification"></pre>
-
-    <h2>Generated URL</h2>
-    <a id="problems-link" href="#" target="_blank" style="display: inline;"></a>
-
-    <h2>Generated Problems</h2>
-    <button id="generate-problems">Preview Result</button>
-    <pre id="problems-output"></pre>
-
-    <h2>Live Specification</h2>
-    <pre id="live-specification"></pre>
 
     <h2>Manage Topics</h2>
     <div id="topics-container">
@@ -49,6 +31,23 @@
         <input type="text" id="activity-name" placeholder="e.g., Python Basics">
         <button id="generate-topics">Generate Topics</button>
     </div>
+
+    <form id="problem-form">
+        <h2>Specify Number of Problems</h2>
+        <label for="num_problems">Number of Problems:</label>
+        <input type="range" id="num_problems" name="num_problems" min="1" max="10" value="3" oninput="numProblemsOutput.value = this.value;">
+        <output id="numProblemsOutput">3</output><br><br>
+    </form>
+
+    <h2>Live Specification</h2>
+    <pre id="live-specification"></pre>
+
+    <h2>Generated URL</h2>
+    <a id="problems-link" href="#" target="_blank" style="display: inline;"></a>
+
+    <h2>Generated Problems</h2>
+    <button id="generate-problems">Preview Result</button>
+    <pre id="problems-output"></pre>
 
     <script>
         const output = document.getElementById('output');
